@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id          Int         @id @default(autoincrement())
+  name        String
+  notes       String?     @db.LongText
+  order       Int
+  schedules   Schedule[]
+  categories  Field[]
+
+  @@map(name: "items")
+}
+
+model Category {
+  id          Int         @id @default(autoincrement())
+  name        String
+  fields      Field[]
+
+  @@map(name: "categories")
+}
+
+model Field {
+  id          Int         @id @default(autoincrement())
+  name        String
+  cat_id      Int
+  order       Int
+  category    Category    @relation(fields: [cat_id], references: [id])
+  items       Item[]
+  schedules   Schedule[]
+
+  @@map(name: "fields")
+}
+
+model Schedule {
+  id          Int         @id @default(autoincrement())
+  amount      String
+  item_id     Int
+  item        Item        @relation(fields: [item_id], references: [id])
+  categories  Field[]
+  Monday      Boolean     @default(false)
+  Tuesday     Boolean     @default(false)
+  Wednesday   Boolean     @default(false)
+  Thursday    Boolean     @default(false)
+  Friday      Boolean     @default(false)
+  Saturday    Boolean     @default(false)
+  Sunday      Boolean     @default(false)
+
+  @@map(name: "schedules")
+}
