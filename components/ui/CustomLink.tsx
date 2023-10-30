@@ -19,8 +19,10 @@ export default function CustomLink({icon, iconOnly, hiddenText, hiddenTextBefore
   const iconProps = {icon, iconOnly, hiddenText, hiddenTextBeforeRegular};
 
   return (
-    <Link {...props}>
-      <ChildrenWithIcon {...iconProps}>{children}</ChildrenWithIcon>
-    </Link>
+    <div className={className}>
+      <Link {...props}>
+        <ChildrenWithIcon {...iconProps}>{children}</ChildrenWithIcon>
+      </Link>
+    </div>
   )
 }
