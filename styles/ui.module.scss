@@ -10,10 +10,18 @@
     cursor: pointer;
   }
 }
-
 .input {
   input {
     @extend %basicInput;
+  }
+}
+.textarea {
+  textarea {
+    box-sizing: border-box;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 5px;
   }
 }
 
