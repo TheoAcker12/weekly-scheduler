@@ -1,4 +1,6 @@
+import LoginForm from '@/components/pages/LoginForm'
 import Head from 'next/head'
+import styles from '@/styles/pages/login.module.scss'
 
 export default function Login() {
   return (<>
@@ -8,8 +10,12 @@ export default function Login() {
       <link rel="icon" href="/favicon.ico" />
     </Head>
     <main id="main">
-      <h1>Log In</h1>
-      <div>There is nothing here yet.</div>
+      <div className={styles.outerWrapper}>
+        <div className={styles.innerWrapper}>
+          <h1>Log In</h1>
+          <LoginForm />
+        </div>
+      </div>
     </main>
   </>)
 }
