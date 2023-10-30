@@ -1,0 +1,93 @@
+
+$font-family-standard: Helvetica, Verdana, Arial, sans-serif;
+// Max width (for site as a whole)
+$max-width: 1440px;
+$max-padding: calc(50vw - ($max-width)/2);
+
+html {
+  width: 100%;
+}
+body {
+  margin: 0;
+  line-height: 1.4;
+  letter-spacing: normal;
+  font-family: $font-family-standard;
+}
+
+// skip link
+.skip-link {
+  position: absolute;
+  transition: top .5s ease; // can modify transition-property for individual skip link that requires a different type of transition
+  padding: 15px 10px;
+  text-decoration: underline;
+  border-radius: 10px;
+  border: 2px solid;
+}
+#main-skip-link {
+    top: -70px;
+    left: 20px;
+    z-index: 10;
+    &:focus, &:active {
+        top: 15px;
+    }
+}
+
+main {
+  padding: 10px 20px;
+}
+@media(min-width: $max-width) {
+  main {
+    padding: 10px $max-padding;
+  }
+}
+
+// header/navbar
+header {
+  padding: 10px;
+  border-bottom: 1px solid;
+}
+nav {
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  a {
+    display: block;
+    color: inherit;
+    text-underline-offset: 1px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    padding: 10px 5px;
+    &:hover, &:focus-visible {
+      text-decoration: underline;
+    }
+    &[aria-current='page'] {
+      font-weight: bold;
+    }
+  }
+}
+
+// utility
+.sr-only {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+}
+.list-unstyled {
+  list-style: none;
+  padding-inline-start: 0;
+  margin-bottom: 0;
+}
+.hidden {
+  display: none;
+}
