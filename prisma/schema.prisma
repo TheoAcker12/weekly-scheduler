@@ -34,7 +34,7 @@ model Field {
   name        String
   cat_id      Int
   order       Int
-  category    Category    @relation(fields: [cat_id], references: [id])
+  category    Category    @relation(fields: [cat_id], references: [id], onDelete: Cascade)
   items       Item[]
   schedules   Schedule[]
 
