@@ -1,5 +1,5 @@
-import { Category } from "./api_schema";
-import { Filter, Param, days } from "./types";
+import { Category, ScheduleListItem } from "./api_schema";
+import { Day, Filter, Param, ScheduleData, UnsortedScheduleData, dayKeys, days } from "./types";
 
 // get the index of maybeDay if it is a Day, otherwise undefined
 export function getStartDayIndex(maybeDay: any): number|undefined {
@@ -51,4 +51,71 @@ function parseFilter(include: boolean, filterParam: string, categories: Category
     }
   }
   return filter;
+}
+
+// format, sort, and filter data for weekly schedule
+export function formatData(categories: Category[], schedules: ScheduleListItem[], params: {[key: string]: Param}): ScheduleData {
+  // parse params
+  const include = parseFilterParams(true, params['include'], categories);
+  const exclude = parseFilterParams(false, params['exclude'], categories);
+
+  // filter data - check include filters and exclude filters
+  let filteredSchedules = filterSchedules(true, include, categories, schedules);
+  filteredSchedules = filterSchedules(false, exclude, categories, filteredSchedules);
+
+  // check for sort category - get list of fields (in order) if data is to be sorted
+  if (false) { // todo: this will be replaced with check for dealing with sorted data
+  } else {
+    // unsorted data
+    // make empty days list - basic data structure
+    const dayMap: UnsortedScheduleData = dayKeys<[]>([]);
+    // the above makes all days share the same value, so now let's fix that
+    for (let day of days) {
+      dayMap[day] = [];
+    }
+
+    // loop through schedules
+    for (const schedule of filteredSchedules) {
+      // loop through days - if day matches, add schedule to day
+      for (const day of days) {
+        if (schedule[day]) dayMap[day].push({
+          name: schedule.item.name,
+          amount: schedule.amount,
+          notes: schedule.item.notes,
+        });
+      }
+    }
+    return {sorted: false, dayMap};
+  }
+}
+// some helper functions for the above
+function filterSchedules(include: boolean, filters: Filter[], categories: Category[], schedules: ScheduleListItem[]): ScheduleListItem[] {
+  // must be at least one filter for this to matter
+  if (filters.length === 0) return schedules;
+  return schedules.filter((s) => {
+    // if include, as soon as a match is found the schedule is valid; if exclude, as soon as a match is found the schedule is invalid
+    let valid = !include; // assumed invalid until found (if include); assumed valid until found (if exclude)
+    for (let filter of filters) {
+      // get list of all valid field ids for the category (map field index to field id) - if no ids are specified then use all
+      const category = categories[filter.cat_index];
+      const field_ids = filter.field_index_list.length ? filter.field_index_list.map((index) => category.fields[index].id) : category.fields.map((f) => f.id);
+      // check if at least one field id matches
+      const found = !!s.categories.find((field) => field_ids.includes(field.id));
+      if (found) {
+        valid = include;
+        break; // no need to continue once any match has been found
+      }
+    }
+    return valid;
+  });
+}
+
+// modify days list based on user preferences
+export function getOrderedDays(startIndex: number): Day[] {
+  let newDays: Day[] = [];
+  for (let i = 0; i < 7; i++) {
+    const index = (startIndex + i) % 7;
+    newDays.push(days[index]);
+  }
+  return newDays;
 }

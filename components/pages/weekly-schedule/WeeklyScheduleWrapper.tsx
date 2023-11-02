@@ -11,11 +11,12 @@ import { useRouter } from "next/router"
 import { useEffect } from "react"
 import { useImmerReducer } from "use-immer"
 import { ScheduleAction, ScheduleState, scheduleReducer } from "./schedule-reducer"
-import { getStartDayIndex } from "@/lib/utils"
+import { formatData, getStartDayIndex } from "@/lib/utils"
 import Loading from "@/components/ui/Loading"
 import * as z from "zod";
-import { categorySchema } from "@/lib/api_schema"
+import { categorySchema, scheduleListItemSchema } from "@/lib/api_schema"
 import Alert from "@/components/ui/Alert"
+import WeeklyScheduleList from "./WeeklyScheduleList"
 
 export default function WeeklyScheduleWrapper() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function WeeklyScheduleWrapper() {
     status: 'routerLoading',
     viewType: 'list',
     startDayIndex: getStartDayIndex(process.env.NEXT_PUBLIC_DEFAULT_WEEK_START) ?? 0,
+    params: {}, // router not ready yet, so can't provide anything but an empty object
   });
 
   // update state when router is ready so search params can be checked
@@ -31,6 +33,14 @@ export default function WeeklyScheduleWrapper() {
     // inform reducer that router is ready and provide router query params
     dispatch({type: 'routerReady', params: router.query})
   }, [router.isReady]);
+
+  // check if search params have changed such that data needs to be modified (though only bother checking when the router is ready - pointless otherwise)
+  if (router.isReady) { for (let param of ['include', 'exclude', 'sort_by']) {
+    if (state.params[param] !== router.query[param]) {
+      dispatch({type: 'paramsModified', params: router.query});
+      continue;
+    }
+  }}
 
   const getData = async () => {
     try {
@@ -47,12 +57,26 @@ export default function WeeklyScheduleWrapper() {
         const categories = z.array(categorySchema).parse(body);
         dispatch({type: 'categoriesLoaded', categories});
       }
+      if (state.categories && !state.data) {
+        const res = await fetch ('/api/schedule', {
+          method: 'GET',
+        });
+        if (!res.ok) {
+          // failed to load data - don't keep trying
+          dispatch({type: 'dataLoadFailed', error: {msg: 'Schedule data failed to load. Server responsed with status:' + res.status + ', ' + res.statusText}});
+          return;
+        }
+        const body = await res.json();
+        const schedules = z.array(scheduleListItemSchema).parse(body);
+        // turn schedules into necessary data, then dispatch
+        const data = formatData(state.categories, schedules, router.query);
+        dispatch({type: 'dataLoaded', data});
+      }
     } catch (e) {
       if (e instanceof Error) dispatch ({type: 'dataLoadFailed', error: {msg: e.message}});
       else dispatch({type: 'dataLoadFailed', error: {msg: 'An unknown error occured when trying to load data.'}});
     }
   }
-
   
   // wait until router is ready before doing anything
   if (state.status === 'routerLoading') return <Loading />
@@ -62,7 +86,7 @@ export default function WeeklyScheduleWrapper() {
     return <Loading />
   }
   // display errors if necessary
-  if (!state.categories) return <Alert errors={[state.error ?? {msg: 'An unidentified error occured.'}]} />
+  if (!state.categories || !state.data) return <Alert errors={[state.error ?? {msg: 'An unidentified error occured.'}]} />
 
   return (
     <div>
@@ -102,6 +126,11 @@ export default function WeeklyScheduleWrapper() {
             start_on: days[state.startDayIndex],
           }}
           categories={state.categories}
+        />
+        <WeeklyScheduleList
+          data={state.data}
+          viewType={state.viewType}
+          startDayIndex={state.startDayIndex}
         />
     </div>
   )
