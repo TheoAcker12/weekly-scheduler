@@ -4,10 +4,12 @@ import { Filter } from "@/lib/types";
 export type FilterState = {
   sortIndex?: number,
   filters: Filter[],
+  filtersExpanded: boolean,
 }
 
 export type FilterAction =
 | {type: 'form/sortCategorySelected', value: string, categories: Category[]}
+| {type: 'form/filtersToggled'}
 | {type: 'form/filterAdded'}
 | {type: 'form/filterDeleted', index: number}
 | {type: 'filter/includeSelected', index: number, value: string}
@@ -23,11 +25,18 @@ export function filterReducer(state: FilterState, action: FilterAction): void {
       else state.sortIndex = index;
       break;
     }
+    case 'form/filtersToggled':
+      // must have filters to toggle
+      if (state.filters.length) state.filtersExpanded = !state.filtersExpanded;
+      else state.filtersExpanded = false;
+      break;
     case 'form/filterAdded':
       state.filters.push({include: true, cat_index: -1, field_index_list: []});
+      state.filtersExpanded = true;
       break;
     case 'form/filterDeleted':
       if (state.filters[action.index]) state.filters.splice(action.index, 1);
+      if (!state.filters.length) state.filtersExpanded = false;
       break;
     default:
       // filter index required for all other actions

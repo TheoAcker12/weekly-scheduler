@@ -90,6 +90,7 @@ export default function SortAndFilterForm({ categories, ...props}: Props) {
       ...parseFilterParams(true, props.params['include'], categories),
       ...parseFilterParams(false, props.params['exclude'], categories),
     ],
+    filtersExpanded: false,
   });
 
   // for use populating sort and filter category select options
@@ -117,12 +118,19 @@ export default function SortAndFilterForm({ categories, ...props}: Props) {
       <hr />
       <div className='filters-summary'>
         <span>Filter by: fiter summary goes here</span>
-        {state.filters.length > 0 ? '' : addFilterBtn}
+        {/* If no filters, display add button instead of toggle button */}
+        { state.filters.length > 0 ?  <Button
+          id='toggle-filters-btn'
+          aria-controls='filters-list'
+          aria-expanded={state.filtersExpanded}
+          onClick={() => dispatch({type: 'form/filtersToggled'})}
+        >Toggle filters</Button>
+        : addFilterBtn}
       </div>
       <div className={styles.filterList}>
         
       {state.filters.length > 0 ?
-        <ul>
+        <ul id='filters-list' className={state.filtersExpanded ? '' : 'hidden'}>
           {state.filters.map((f, index) => 
             <li key={index}>
               <div className={styles.filter}>
