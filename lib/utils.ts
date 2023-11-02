@@ -1,5 +1,5 @@
 import { Category, ScheduleListItem } from "./api_schema";
-import { Day, Filter, Param, ScheduleData, UnsortedScheduleData, dayKeys, days } from "./types";
+import { Day, Filter, Param, ScheduleData, SortedScheduleData, UnsortedScheduleData, dayKeys, days } from "./types";
 
 // get the index of maybeDay if it is a Day, otherwise undefined
 export function getStartDayIndex(maybeDay: any): number|undefined {
@@ -56,6 +56,7 @@ function parseFilter(include: boolean, filterParam: string, categories: Category
 // format, sort, and filter data for weekly schedule
 export function formatData(categories: Category[], schedules: ScheduleListItem[], params: {[key: string]: Param}): ScheduleData {
   // parse params
+  const sortIndex = parseSortParam(params['sort_by'], categories);
   const include = parseFilterParams(true, params['include'], categories);
   const exclude = parseFilterParams(false, params['exclude'], categories);
 
@@ -64,7 +65,40 @@ export function formatData(categories: Category[], schedules: ScheduleListItem[]
   filteredSchedules = filterSchedules(false, exclude, categories, filteredSchedules);
 
   // check for sort category - get list of fields (in order) if data is to be sorted
-  if (false) { // todo: this will be replaced with check for dealing with sorted data
+  if (sortIndex !== undefined) {
+    const sortFields = getSortFields(sortIndex, [...include, ...exclude], categories);
+
+    // make empty days list and populate each day with sort fields
+    const dayMap: SortedScheduleData = dayKeys<SortedScheduleData['Monday']>([]);
+    // the above makes all days share the same value, so now let's fix that
+    for (let day of days) {
+      dayMap[day] = sortFields.map((field) => ({name: field.name, items: []}));
+    }
+
+    // for convenience, map field id to index in sortFields
+    const fieldIndex = sortFields.reduce<{[key: number]: number}>((o, field, index) => {
+      o[field.id] = index;
+      return o;
+    }, {});
+
+    // loop through schedules
+    for (const schedule of filteredSchedules) {
+      // loop through schedule categories/fields to determine where to place the schedule (could be multiple places, could be nowhere)
+      for (const category of schedule.categories) {
+        if (category.id in fieldIndex) {
+          // loop through days - if day matches, add schedule to day (at the appropriate index)
+          for (const day of days) {
+            if (schedule[day]) dayMap[day][fieldIndex[category.id]].items.push({
+              name: schedule.item.name,
+              amount: schedule.amount,
+              notes: schedule.item.notes,
+            });
+          }
+        }
+      }
+    }
+    // return data
+    return {sorted: true, dayMap};
   } else {
     // unsorted data
     // make empty days list - basic data structure
@@ -108,6 +142,18 @@ function filterSchedules(include: boolean, filters: Filter[], categories: Catego
     }
     return valid;
   });
+}
+function getSortFields(sortIndex: number, filters: Filter[], categories: Category[]): Category['fields'] {
+  const fields = categories[sortIndex].fields;
+  // check if also filtering by this category
+  const filter = filters.find((f) => f.cat_index === sortIndex);
+  // if not filtering by the same category, use all fields
+  if (!filter) return fields;
+  // if filtering, only include the fields included/not excluded by the filter
+  const filteredFields = fields.filter((field, index) => filter.field_index_list.includes(index) === filter.include);
+  // filtering only matters if at least one field id is specified by filter - in other words, if filtering removed all fields, ignore the filtering and return all fields
+  if (!filteredFields.length) return fields;
+  return filteredFields;
 }
 
 // modify days list based on user preferences
