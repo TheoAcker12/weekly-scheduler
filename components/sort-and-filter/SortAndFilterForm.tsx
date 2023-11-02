@@ -117,7 +117,7 @@ export default function SortAndFilterForm({ categories, ...props}: Props) {
       </Select>
       <hr />
       <div className='filters-summary'>
-        <span>Filter by: fiter summary goes here</span>
+        <span>Filter by: {state.filters.filter((filter) => filter.cat_index !== -1).map((filter) => categories[filter.cat_index].name).join(', ')}</span>
         {/* If no filters, display add button instead of toggle button */}
         { state.filters.length > 0 ?  <Button
           id='toggle-filters-btn'
