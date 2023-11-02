@@ -1,8 +1,13 @@
 import { Select } from '@/components/ui/Select';
 import CustomLink from '@/components/ui/CustomLink';
 import styles from '@/styles/filter-form.module.scss'
+import { ParsedUrlQuery } from 'querystring';
 
-export default function SortAndFilterForm() {
+type Props = {
+  params: ParsedUrlQuery
+}
+
+export default function SortAndFilterForm(props: Props) {
   return (
     <fieldset>
       <legend>Sort and Filter</legend>
@@ -22,7 +27,9 @@ export default function SortAndFilterForm() {
       <hr />
       <div>
         <CustomLink
-          href={{pathname: '/home'}}
+          href={{pathname: '/home', query: {
+            ...props.params
+          }}}
         >Apply filters</CustomLink>
       </div>
     </fieldset>
