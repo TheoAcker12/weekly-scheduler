@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@/lib/prisma'
 import * as z from 'zod'
 import { dayKeys } from '@/lib/types';
-import { Schedule, ScheduledItem, itemIncludeClause, newScheduleSchema } from '@/lib/api_schema';
+import { Schedule, ScheduleListItem, itemIncludeClause, newScheduleSchema } from '@/lib/api_schema';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 async function GET(res: NextApiResponse) {
-  const schedules: ScheduledItem[] = await prisma.schedule.findMany({
+  const schedules: ScheduleListItem[] = await prisma.schedule.findMany({
     select: {
       amount: true,
       item: { select: {
@@ -29,7 +29,8 @@ async function GET(res: NextApiResponse) {
         id: true, cat_id: true,
       }},
       ...dayKeys<boolean>(true)
-    }
+    },
+    orderBy: { item: { order: 'asc' }},
   });
   return res.status(200).json(schedules);
 }

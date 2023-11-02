@@ -14,7 +14,7 @@ export const categorySelectClause = {
 
 // GET /category
 // response: array of these:
-const categorySchema = z.object({
+export const categorySchema = z.object({
   id: z.number(),
   name: z.string(),
   fields: z.array(z.object({
@@ -92,7 +92,7 @@ export const scheduleDays = z.object({
 
 // GET /schedule
 // response: array of these:
-const schedulesListSchema = z.object({
+export const scheduleListItemSchema = z.object({
   amount: z.string(),
   item: z.object({ name: z.string(), notes: z.string().nullish() }),
   categories: z.array(z.object({
@@ -100,7 +100,7 @@ const schedulesListSchema = z.object({
     cat_id: z.number(),
   }))
 }).merge(scheduleDays)
-export type ScheduledItem = z.infer<typeof schedulesListSchema>
+export type ScheduleListItem = z.infer<typeof scheduleListItemSchema>
 
 // POST /schedule
 // request:
