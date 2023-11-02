@@ -6,7 +6,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { Category } from '@/lib/api_schema';
 import { useImmerReducer } from 'use-immer';
 import { FilterAction, FilterState, filterReducer } from './filters-reducer';
-import { parseSortParam } from '@/lib/utils';
+import { parseFilterParams, parseSortParam } from '@/lib/utils';
 import { Filter } from '@/lib/types';
 
 type Props = {
@@ -63,10 +63,33 @@ function getFilterFieldOptions(filter: Filter, categories: Category[]): JSX.Elem
   return options;
 }
 
+/**
+ * Build list of filters that can be added to a url query (for 'Apply filters' link)
+ * 
+ * @param include boolean: true if for 'include' filters, false if for 'exclude'
+ * @param filterList Filter[]: filters from the state
+ * @param categories Category[]: from database
+ */
+function buildFilterParams(include: boolean, filterList: Filter[], categories: Category[]): string[]|undefined {
+  // first filter the filters - must have valid category index and must match the include parameter
+  const filters = filterList.filter((filter) => filter.cat_index !== -1 && filter.include === include);
+  // then format strings
+  const filterParams = filters.map((filter) => {
+    const cat = categories[filter.cat_index];
+    const field_ids = filter.field_index_list.map((index) => cat.fields[index].id);
+    return `${cat.id}_${field_ids.join('-')}`;
+  })
+  if (filterParams.length > 0) return filterParams;
+  else return undefined;
+}
+
 export default function SortAndFilterForm({ categories, ...props}: Props) {
   const [state, dispatch] = useImmerReducer<FilterState, FilterAction>(filterReducer,  {
     sortIndex: parseSortParam(props.params['sort_by'], categories),
-    filters: [],
+    filters: [
+      ...parseFilterParams(true, props.params['include'], categories),
+      ...parseFilterParams(false, props.params['exclude'], categories),
+    ],
   });
 
   // for use populating sort and filter category select options
@@ -155,6 +178,8 @@ export default function SortAndFilterForm({ categories, ...props}: Props) {
           href={{pathname: '/home', query: {
             ...props.params,
             sort_by: state.sortIndex !== undefined ? categories[state.sortIndex].id : undefined,
+            include: buildFilterParams(true, state.filters, categories),
+            exclude: buildFilterParams(false, state.filters, categories),
           }}}
         >Apply filters</CustomLink>
       </div>
