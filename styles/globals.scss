@@ -91,3 +91,49 @@ nav {
 .hidden {
   display: none;
 }
+
+// other
+
+legend {
+  font-size: 1.2em;
+}
+
+.grid {
+  display: grid;
+  border: 1px solid;
+  border-right: none;
+  position: absolute;
+  right: 20px;
+  left: 20px;
+  overflow-x: auto;
+  margin-top: 15px;
+  
+  .ignore-grid {
+    display: contents;
+  }
+
+  .grid-header {
+    padding: 5px;
+    font-weight: bold;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+
+  .grid-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}
+
+.form-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: 10px;
+}
+.no-heading-style {
+  font-size: initial;
+  font-weight: initial;
+  margin: 0;
+}

@@ -1,4 +1,6 @@
+
 import Layout from '@/components/layout/Layout'
+import WeeklyScheduleWrapper from '@/components/pages/weekly-schedule/WeeklyScheduleWrapper'
 
 export default function Home() {
   return (
@@ -6,7 +8,7 @@ export default function Home() {
       current="/home"
       title="Weekly Schedule"
     >
-      <div>Stuff</div>
+      <WeeklyScheduleWrapper />
     </Layout>
   )
 }

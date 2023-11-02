@@ -1,0 +1,20 @@
+.filtersList {
+  margin: 5px 0;
+}
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  > span {
+    padding-left: 5px;
+  }
+  button {
+    margin: 5px 10px;
+    font-size: 1.15em;
+  }
+}
+.addFilterListItem {
+  button {
+    margin-left: 0;
+  }
+}

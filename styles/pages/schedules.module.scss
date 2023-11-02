@@ -1,0 +1,61 @@
+// view options - view as, start week at, print view
+.viewOptions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px;
+  > div:not(:last-child) {
+    padding-right: 10px;
+  }
+}
+
+// grid/list
+.scheduleList {
+  h3 {
+    margin-top: .9em;
+    margin-bottom: .5em;
+  }
+}
+.scheduleGrid {
+  grid-template-columns: repeat(7, 1fr);
+  .sortedHeader {
+    background-color: lightgrey;
+    grid-column: 1 / 8;
+    padding: 5px;
+    border-right: 1px solid;
+  }
+  .itemList {
+    border-right: 1px solid;
+  }
+  .listContent {
+    padding: 5px 5px 5px 0;
+    border-top: 1px solid;
+    border-right: 1px solid;
+    &:not(:last-child) {
+      border-bottom: 1px solid;
+    }
+    .itemList {
+      border-right: none;
+    }
+  }
+}
+
+.listHeader {
+  margin-bottom: .5em;
+  margin-top: 1.2em;
+}
+.itemList {
+  margin-top: 0;
+}
+.scheduledItem {
+  display: flex;
+  margin-top: 10px;
+  svg {
+    padding: 4px 5px;
+    font-size: .9em;
+    flex-shrink: 0;
+  }
+}
+.itemNotes {
+  font-size: .9em;
+}
