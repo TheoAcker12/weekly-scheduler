@@ -5,9 +5,13 @@ import { itemListItemSchema } from "@/lib/api_schema";
 import Alert from "@/components/ui/Alert";
 import Loading from "@/components/ui/Loading";
 import ItemGrid from "./ItemGrid";
+import ScheduleGrid from "./ScheduleGrid";
 
+type Props = {
+  gridType?: 'item' | 'schedule',
+}
 
-export default function ItemGridWrapper() {
+export default function ItemGridWrapper(props: Props) {
   const [{items, ...state}, dispatch] = useImmerReducer<GridState, GridAction>(gridReducer, {status: 'dataLoading', errors: []});
 
   // database interaction
@@ -93,11 +97,20 @@ export default function ItemGridWrapper() {
   if (items.length === 0) return <div>No items found</div>
   return (<>
     <Alert errors={state.errors} />
-    <ItemGrid
-      state={{items, ...state}}
-      dispatch={dispatch}
-      deleteItem={deleteItem}
-      moveItems={moveItems}
-    />
+    {props.gridType === 'schedule' ?
+      <ScheduleGrid
+        state={{items, ...state}}
+        dispatch={dispatch}
+        deleteItem={deleteItem}
+        moveItems={moveItems}
+      />
+    :
+      <ItemGrid
+        state={{items, ...state}}
+        dispatch={dispatch}
+        deleteItem={deleteItem}
+        moveItems={moveItems}
+      />
+    }
   </>)
 }

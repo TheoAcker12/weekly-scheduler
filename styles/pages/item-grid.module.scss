@@ -23,3 +23,15 @@
 // .editItem, .moveItem {
 //   border-right: none;
 // }
+
+.scheduleGrid {
+  grid-template-columns: repeat(6, auto);
+  border-bottom: none;
+  .topItem {
+    border-top: 2px solid;
+  }
+}
+.noSchedules {
+  background-color: lightgrey;
+  grid-column: span 3;
+}

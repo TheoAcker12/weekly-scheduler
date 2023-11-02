@@ -1,4 +1,5 @@
 import Layout from '@/components/layout/Layout'
+import ItemGridWrapper from '@/components/pages/item-grid/ItemGridWrapper'
 
 export default function Schedules() {
   return (
@@ -6,7 +7,7 @@ export default function Schedules() {
       current="/schedules"
       title="Item Schedules"
     >
-      <div>There is nothing here yet.</div>
+      <ItemGridWrapper gridType='schedule' />
     </Layout>
   )
 }
