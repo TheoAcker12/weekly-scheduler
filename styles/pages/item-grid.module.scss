@@ -1,0 +1,25 @@
+.itemGrid {
+  grid-template-columns: repeat(7, auto);
+  border-bottom: none;
+}
+.gridItem {
+  padding: 5px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+.deleteConfirmation {
+  grid-column: 1 / 8;
+  justify-content: center;
+  & > div {
+    display: flex;
+    flex-wrap: none;
+  }
+}
+.editItem, .moveItem {
+  button {
+    margin: 0 5px;
+  }
+}
+// .editItem, .moveItem {
+//   border-right: none;
+// }

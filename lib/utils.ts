@@ -1,4 +1,4 @@
-import { Category, ScheduleListItem } from "./api_schema";
+import { Category, ListItemSchedule, ScheduleListItem } from "./api_schema";
 import { Day, Filter, Param, ScheduleData, SortedScheduleData, UnsortedScheduleData, dayKeys, days } from "./types";
 
 // get the index of maybeDay if it is a Day, otherwise undefined
@@ -164,4 +164,12 @@ export function getOrderedDays(startIndex: number): Day[] {
     newDays.push(days[index]);
   }
   return newDays;
+}
+// return the first three letters of each provided day
+export function getShortDayList(schedule: ListItemSchedule): string {
+  let values: string[] = [];
+  for (const day of days) {
+    if (schedule[day]) values.push(day.slice(0, 3));
+  }
+  return values.join(', ');
 }

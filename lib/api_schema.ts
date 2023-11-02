@@ -152,18 +152,20 @@ export const itemIncludeClause = {
 
 // GET /item
 // response: array of these:
-const itemListItemSchema = z.object({
+const listItemSchedule = z.object({
+  amount: z.string(),
+  categories: z.array(z.object({ name: z.string() })),
+}).merge(scheduleDays);
+export const itemListItemSchema = z.object({
   id: z.number(),
   name: z.string(),
   notes: z.string().nullish(),
   order: z.number(),
   categories: z.array(z.object({ name: z.string() })),
-  schedules: z.array(z.object({
-    amount: z.string(),
-    categories: z.array(z.object({ name: z.string() })),
-  }).merge(scheduleDays))
+  schedules: z.array(listItemSchedule)
 })
 export type ItemListItem = z.infer<typeof itemListItemSchema>
+export type ListItemSchedule = z.infer<typeof listItemSchedule>
 
 // POST /item
 // request:
