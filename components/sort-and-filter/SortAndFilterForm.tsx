@@ -190,6 +190,11 @@ export default function SortAndFilterForm({ categories, ...props}: Props) {
             exclude: buildFilterParams(false, state.filters, categories),
           }}}
         >Apply filters</CustomLink>
+        <Button
+          id='clear-filters-btn'
+          onClick={() => dispatch({type: 'form/filtersCleared'})}
+          disabled={state.filters.length === 0}
+        >Clear filters</Button>
       </div>
     </fieldset>
   )

@@ -12,6 +12,7 @@ export type FilterAction =
 | {type: 'form/filtersToggled'}
 | {type: 'form/filterAdded'}
 | {type: 'form/filterDeleted', index: number}
+| {type: 'form/filtersCleared'}
 | {type: 'filter/includeSelected', index: number, value: string}
 | {type: 'filter/categorySelected', index: number, value: string, categories: Category[]}
 | {type: 'filter/fieldSelected', index: number, value: string, categories: Category[]}
@@ -37,6 +38,10 @@ export function filterReducer(state: FilterState, action: FilterAction): void {
     case 'form/filterDeleted':
       if (state.filters[action.index]) state.filters.splice(action.index, 1);
       if (!state.filters.length) state.filtersExpanded = false;
+      break;
+    case 'form/filtersCleared':
+      state.filters = [];
+      state.filtersExpanded = false;
       break;
     default:
       // filter index required for all other actions
