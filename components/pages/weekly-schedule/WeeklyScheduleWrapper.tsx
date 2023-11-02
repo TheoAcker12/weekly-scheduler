@@ -119,14 +119,17 @@ export default function WeeklyScheduleWrapper() {
           <span>Open print layout</span>
         </CustomLink>
       </div>
-        <SortAndFilterForm
-          params={{
-            ...router.query,
-            view_as: state.viewType,
-            start_on: days[state.startDayIndex],
-          }}
-          categories={state.categories}
-        />
+      {/* No sort and filter options if no categories exist */}
+      { state.categories.length > 0 ?
+          <SortAndFilterForm
+            params={{
+              ...router.query,
+              view_as: state.viewType,
+              start_on: days[state.startDayIndex],
+            }}
+            categories={state.categories}
+          />
+        : 'Add categories to get sort and filter options.'}
         <WeeklyScheduleList
           data={state.data}
           viewType={state.viewType}
