@@ -5,6 +5,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { Category } from '@/lib/api_schema';
 import { useImmerReducer } from 'use-immer';
 import { FilterAction, FilterState, filterReducer } from './filters-reducer';
+import { parseSortParam } from '@/lib/utils';
 
 type Props = {
   params: ParsedUrlQuery,
@@ -12,7 +13,11 @@ type Props = {
 }
 
 export default function SortAndFilterForm({ categories, ...props}: Props) {
-  const [state, dispatch] = useImmerReducer<FilterState, FilterAction>(filterReducer,  {});
+  console.log(props.params['sort_by']);
+  console.log(parseSortParam(props.params['sort_by'], categories))
+  const [state, dispatch] = useImmerReducer<FilterState, FilterAction>(filterReducer,  {
+    sortIndex: parseSortParam(props.params['sort_by'], categories),
+  });
 
   // for use populating sort and filter category select options
   const catOptions = categories.map((cat, index) => <option key={index} value={index}>{cat.name}</option>);
@@ -40,7 +45,8 @@ export default function SortAndFilterForm({ categories, ...props}: Props) {
       <div>
         <CustomLink
           href={{pathname: '/home', query: {
-            ...props.params
+            ...props.params,
+            sort_by: state.sortIndex !== undefined ? categories[state.sortIndex].id : undefined,
           }}}
         >Apply filters</CustomLink>
       </div>

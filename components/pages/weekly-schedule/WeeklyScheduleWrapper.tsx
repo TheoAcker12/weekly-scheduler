@@ -97,6 +97,7 @@ export default function WeeklyScheduleWrapper() {
       </div>
         <SortAndFilterForm
           params={{
+            ...router.query,
             view_as: state.viewType,
             start_on: days[state.startDayIndex],
           }}
