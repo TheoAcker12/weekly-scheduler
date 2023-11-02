@@ -18,7 +18,11 @@ import { categorySchema, scheduleListItemSchema } from "@/lib/api_schema"
 import Alert from "@/components/ui/Alert"
 import WeeklyScheduleList from "./WeeklyScheduleList"
 
-export default function WeeklyScheduleWrapper() {
+type Props = {
+  listOnly?: boolean,
+}
+
+export default function WeeklyScheduleWrapper(props: Props) {
   const router = useRouter();
   const [state, dispatch] = useImmerReducer<ScheduleState, ScheduleAction>(scheduleReducer, {
     status: 'routerLoading',
@@ -88,6 +92,15 @@ export default function WeeklyScheduleWrapper() {
   // display errors if necessary
   if (!state.categories || !state.data) return <Alert errors={[state.error ?? {msg: 'An unidentified error occured.'}]} />
 
+  // for convenience
+  const scheduleList = <WeeklyScheduleList
+    data={state.data}
+    viewType={state.viewType}
+    startDayIndex={state.startDayIndex}
+  />
+
+  if (props.listOnly) return scheduleList;
+
   return (
     <div>
       <div className={styles.viewOptions}>
@@ -110,6 +123,7 @@ export default function WeeklyScheduleWrapper() {
         </Select>
         <CustomLink
           href={{pathname: '/print-layout', query: {
+            ...state.params,
             view_as: state.viewType,
             start_on: days[state.startDayIndex],
           }}}
@@ -130,11 +144,7 @@ export default function WeeklyScheduleWrapper() {
             categories={state.categories}
           />
         : 'Add categories to get sort and filter options.'}
-        <WeeklyScheduleList
-          data={state.data}
-          viewType={state.viewType}
-          startDayIndex={state.startDayIndex}
-        />
+        {scheduleList}
     </div>
   )
 }

@@ -7,8 +7,9 @@ type Props = {
   current: string, // relative url of the current page
   title: string, // page title for the current page
   children: ReactNode,
+  hideHeader?: boolean, // for pages that don't need much layout
 }
-export default function Layout({ current, title, children }: Props) {
+export default function Layout({ current, title, children, ...props }: Props) {
   return (<>
     <Head>
       <title>{title}</title>
@@ -16,14 +17,14 @@ export default function Layout({ current, title, children }: Props) {
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="icon" href="/favicon.ico" />
     </Head>
-    <header>
+    {props.hideHeader ? '' : <header>
       {/* skip link */}
       <a href="#main" id="main-skip-link" className="skip-link">Skip to Content</a>
       <Navbar
         pages={pages}
         current={current}
       />
-    </header>
+    </header>}
     <main id="main">
       <h1>{title}</h1>
       {children}
