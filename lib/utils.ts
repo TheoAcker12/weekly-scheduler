@@ -1,5 +1,6 @@
 import { Category, ListItemSchedule, ScheduleListItem } from "./api_schema";
-import { Day, Filter, Param, ScheduleData, SortedScheduleData, UnsortedScheduleData, dayKeys, days } from "./types";
+import { Day, Filter, GenericError, Param, ScheduleData, SortedScheduleData, UnsortedScheduleData, dayKeys, days } from "./types";
+import * as z from "zod";
 
 // get the index of maybeDay if it is a Day, otherwise undefined
 export function getStartDayIndex(maybeDay: any): number|undefined {
@@ -172,4 +173,48 @@ export function getShortDayList(schedule: ListItemSchedule): string {
     if (schedule[day]) values.push(day.slice(0, 3));
   }
   return values.join(', ');
+}
+
+// for api requests
+type ApiArgs = {
+  route: string,
+  args: {
+    method: 'GET' | 'DELETE' | 'PATCH' | 'POST',
+    headers?: {'Content-Type': 'application/json'},
+    body?: BodyInit
+  },
+  failureMsg: string
+}
+type DatabaseResponse<Data> =
+| {success: true, payload: Data}
+| {success: false, error: GenericError}
+
+export async function requestNoResponse({route, args, failureMsg}: ApiArgs): Promise<DatabaseResponse<any>> {
+  try {
+    // add headers to args if args have body
+    const routeArgs = args.body ? {...args, headers: {'Content-Type': 'application/json'}} : args;
+    const res = await fetch(route, routeArgs);
+    if (!res.ok) {
+      return ({success: false, error: {msg: `${failureMsg}: Server responded with status: ${res.status}, ${res.statusText}`}});
+    }
+    const body = await res.json();
+    return ({success: true, payload: body});
+  } catch (e) {
+    let msg = failureMsg + ': An unknown error occured.';
+    if (e instanceof Error) msg = `${failureMsg}: ${e.message}`;
+    return ({success: false, error: {msg}});
+  }
+}
+export async function requestWithResponse<Data>(args: ApiArgs, schema: z.ZodType<Data>): Promise<DatabaseResponse<Data>> {
+  const response = await requestNoResponse(args);
+  if (response.success) {
+    try {
+      const data = schema.parse(response.payload);
+      return ({success: true, payload: data});
+    } catch (e) {
+      if (e instanceof z.ZodError) return ({success: false, error: {msg: `${args.failureMsg}: Response data failed to parse: ${e.message}`}});
+      else return ({success: false, error: {msg: `${args.failureMsg}: An unknown failure occurred after receiving the response.`}}); // I can't imagine how this would be triggered...
+    }
+  }
+  else return response;
 }

@@ -6,6 +6,7 @@ import Alert from "@/components/ui/Alert";
 import Loading from "@/components/ui/Loading";
 import ItemGrid from "./ItemGrid";
 import ScheduleGrid from "./ScheduleGrid";
+import { requestNoResponse, requestWithResponse } from "@/lib/utils";
 
 type Props = {
   gridType?: 'item' | 'schedule',
@@ -16,46 +17,32 @@ export default function ItemGridWrapper(props: Props) {
 
   // database interaction
   const getData = async () => {
-    try {
-      const res = await fetch('/api/item', {
-        method: 'GET',
-      });
-      if (!res.ok) {
-        // failed to load data - don't keep trying
-        dispatch({type: 'dataLoadFailed', error: {msg: 'Item data failed to load. Server responded with status:' + res.status + ', ' + res.statusText}});
-        return;
-      }
-      const body = await res.json();
-      const items = z.array(itemListItemSchema).parse(body);
-      dispatch({type: 'dataLoaded', items});
-    } catch (e) {
-      if (e instanceof Error) dispatch ({type: 'dataLoadFailed', error: {msg: e.message}});
-      else dispatch({type: 'dataLoadFailed', error: {msg: 'An unknown error occured when trying to load data.'}});
-    }
+    const res = await requestWithResponse({
+      route: '/api/item',
+      args: {method: 'GET'},
+      failureMsg: 'Item data failed to load'
+    }, z.array(itemListItemSchema));
+    if (res.success) dispatch({type: 'dataLoaded', items: res.payload});
+    else dispatch({type: 'dataLoadFailed', error: res.error});
   }
+
   const deleteItem = async () => {
     // get index to be deleted before updating the state (updating state will remove the index from state)
     const index = state.activeDelete;
     if (!items || index === undefined) return; // data is required and delete must be active
     const id = items[index].id;
-
     // update state
     dispatch({type: 'delete/confirmed'});
     // delete the item
-    try {
-      const res = await fetch(`/api/item/${id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        dispatch({type: 'updateFailed', error: {msg: `Deletion failed: Server responded with status: ${res.status}, ${res.statusText}`}});
-        return;
-      }
-      // otherwise, success
-      dispatch({type: 'updateSucceeded'});
-    } catch (e) {
-      let error = {msg: 'An unknown error occured when trying to delete the item.'};
-      if (e instanceof Error) error = {msg: 'Delete item failed: ' + e.message};
-      dispatch({type: 'updateFailed', error});
-    }
+    const res = await requestNoResponse({
+      route: `/api/item/${id}`,
+      args: { method: 'DELETE' },
+      failureMsg: 'Delete item failed'
+    });
+    if (res.success) dispatch({type: 'updateSucceeded'});
+    else dispatch({type: 'updateFailed', error: res.error});
   }
+
   const moveItems = async (index1: number, index2: number) => {
     if (!items || !items[index1] || !items[index2]) return;
     // prepare move data before updating state
@@ -66,23 +53,13 @@ export default function ItemGridWrapper(props: Props) {
     // update state
     dispatch({type: 'itemsMoved', index1, index2});
     // move the items
-    try {
-      const res = await fetch(`api/item`, {
-        method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(moveData),
-      });
-      if (!res.ok) {
-        dispatch({type: 'updateFailed', error: {msg: `Move items failed: Server responded with status: ${res.status}, ${res.statusText}`}});
-        return;
-      }
-      // success
-      dispatch({type: 'updateSucceeded'});
-    } catch (e) {
-      let error = {msg: 'An unknown error occured when trying to move the items.'};
-      if (e instanceof Error) error = {msg: 'Move items failed: ' + e.message};
-      dispatch({type: 'updateFailed', error});
-    }
+    const res = await requestNoResponse({
+      route: '/api/item',
+      args: {method: 'PATCH', body: JSON.stringify(moveData)},
+      failureMsg: 'Move items failed'
+    });
+    if (res.success) dispatch({type: 'updateSucceeded'});
+    else dispatch({type: 'updateFailed', error: res.error});
   }
 
   if (!items) {

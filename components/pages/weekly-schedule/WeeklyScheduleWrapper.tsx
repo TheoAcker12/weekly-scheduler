@@ -11,7 +11,7 @@ import { useRouter } from "next/router"
 import { useEffect } from "react"
 import { useImmerReducer } from "use-immer"
 import { ScheduleAction, ScheduleState, scheduleReducer } from "./schedule-reducer"
-import { formatData, getStartDayIndex } from "@/lib/utils"
+import { formatData, getStartDayIndex, requestWithResponse } from "@/lib/utils"
 import Loading from "@/components/ui/Loading"
 import * as z from "zod";
 import { categorySchema, scheduleListItemSchema } from "@/lib/api_schema"
@@ -47,38 +47,27 @@ export default function WeeklyScheduleWrapper(props: Props) {
   }}
 
   const getData = async () => {
-    try {
-      if (!state.categories) {
-        const res = await fetch('/api/category', {
-          method: 'GET',
-        });
-        if (!res.ok) {
-          // failed to load data - don't keep trying
-          dispatch({type: 'dataLoadFailed', error: {msg: 'Category data failed to load. Server responded with status:' + res.status + ', ' + res.statusText}});
-          return;
-        }
-        const body = await res.json();
-        const categories = z.array(categorySchema).parse(body);
-        dispatch({type: 'categoriesLoaded', categories});
-      }
-      if (state.categories && !state.data) {
-        const res = await fetch ('/api/schedule', {
-          method: 'GET',
-        });
-        if (!res.ok) {
-          // failed to load data - don't keep trying
-          dispatch({type: 'dataLoadFailed', error: {msg: 'Schedule data failed to load. Server responsed with status:' + res.status + ', ' + res.statusText}});
-          return;
-        }
-        const body = await res.json();
-        const schedules = z.array(scheduleListItemSchema).parse(body);
+    if (!state.categories) {
+      const res = await requestWithResponse({
+        route: '/api/category', 
+        args: {method: 'GET'}, 
+        failureMsg: 'Category data failed to load'
+      }, z.array(categorySchema));
+      if (res.success) dispatch({type: 'categoriesLoaded', categories: res.payload});
+      else dispatch({type: 'dataLoadFailed', error: res.error});
+    }
+    if (state.categories && !state.data) {
+      const res = await requestWithResponse({
+        route: '/api/schedule', 
+        args: {method: 'GET'}, 
+        failureMsg: 'Schedule data failed to load'
+      }, z.array(scheduleListItemSchema));
+      if (res.success) {
         // turn schedules into necessary data, then dispatch
-        const data = formatData(state.categories, schedules, router.query);
+        const data = formatData(state.categories, res.payload, router.query);
         dispatch({type: 'dataLoaded', data});
       }
-    } catch (e) {
-      if (e instanceof Error) dispatch ({type: 'dataLoadFailed', error: {msg: e.message}});
-      else dispatch({type: 'dataLoadFailed', error: {msg: 'An unknown error occured when trying to load data.'}});
+      else dispatch({type: 'dataLoadFailed', error: res.error});
     }
   }
   
