@@ -1,4 +1,5 @@
 import Layout from '@/components/layout/Layout'
+import CategoryGrid from '@/components/pages/settings/CategoryGrid';
 import { Button } from '@/components/ui/Button'
 import { signOut } from 'next-auth/react'
 
@@ -8,7 +9,10 @@ export default function Settings() {
       current="/settings"
       title="Settings"
     >
-      <div>There is nothing here yet.</div>
+      <hr />
+      <h2>Categories</h2>
+        <CategoryGrid />
+      <hr />
       <Button
         icon='logout'
         onClick={() => { signOut(); }}
