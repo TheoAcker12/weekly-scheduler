@@ -8,6 +8,7 @@ import Loading from "@/components/ui/Loading";
 import styles from "@/styles/pages/settings.module.scss";
 import CustomLink from "@/components/ui/CustomLink";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 // category grid actions
 // - load data, load failed, dismiss errors, move category, delete category, 
@@ -42,18 +43,32 @@ export default function CategoryGrid() {
     else dispatch({type: 'updateFailed', error: res.error});
   }
 
+  const addCategory = async () => {
+    // get name of category to add
+    const name = state.newCat;
+    dispatch({type: 'newCatAdded'});
+    // only proceed if name is not empty
+    if (name && name.trim()) {
+      const res = await requestNoResponse({
+        route: `/api/category`,
+        args: { method: 'POST', body: JSON.stringify({name, fields: []}) },
+        failureMsg: 'Add category failed'
+      });
+      if (res.success) dispatch({type: 'updateSucceeded'});
+      else dispatch({type: 'updateFailed', error: res.error});
+    }
+  }
+
   if (state.status === 'loading') getData();
 
   if (!state.categories) {
-    if (state.status !== 'loading') return <Alert errors={state.errors} />
+    if (state.status === 'default') return <Alert errors={state.errors} />
     else return <Loading />
   }
 
   return (
     <div>
-      <CustomLink
-        href='/categories/add'
-      >Add new category</CustomLink>
+      <Alert errors={state.errors} />
       <ul className={styles.categoriesList}>
         {state.categories.map((cat, index) =>
           <li key={index}>
@@ -96,6 +111,17 @@ export default function CategoryGrid() {
             </>}
           </li>
         )}
+        <li>
+          <Input
+            labelText="New Category: "
+            type='text'
+            value={state.newCat ?? ''}
+            onChange={(e) => dispatch({type: 'newCatEdited', name: e.target.value})}
+          />
+          <Button
+            onClick={addCategory}
+          >Add Category</Button>
+        </li>
       </ul>
     </div>
   )

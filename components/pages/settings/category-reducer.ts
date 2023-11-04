@@ -7,6 +7,7 @@ export type CategoryState = {
   status: 'loading' | 'awaitingUpdate' | 'default',
   errors: GenericError[],
   activeDelete?: number,
+  newCat?: string,
 }
 
 export type CategoryAction =
@@ -21,6 +22,9 @@ export type CategoryAction =
 // completed updates - called when the action initiated by the user completes
 | {type: 'updateSucceeded'}
 | {type: 'updateFailed', error: GenericError}
+// adding new category
+| {type: 'newCatEdited', name: string}
+| {type: 'newCatAdded'}
 
 export function categoryReducer(state: CategoryState, action: CategoryAction): void {
   switch (action.type) {
@@ -36,6 +40,16 @@ export function categoryReducer(state: CategoryState, action: CategoryAction): v
     case 'errorsDismissed':
       state.errors = [];
       break;
+    case 'updateSucceeded':
+      state.errors = []; // best to clear any errors still remaining
+      state.status = 'loading';
+      break;
+    case 'updateFailed':
+      state.errors.push(action.error);
+      // reset data
+      state.categories = undefined;
+      state.status = 'loading';
+      break;
     // categories must exist for these actions to be called
     default:
       if (!state.categories) break;
@@ -44,7 +58,7 @@ export function categoryReducer(state: CategoryState, action: CategoryAction): v
           if (state.categories[action.index]) state.activeDelete = action.index;
           else {
             state.activeDelete = undefined;
-            state.errors.push({msg: `Delete failed: No category exists at index: ${action.index}`});
+            state.errors = [{msg: `Delete failed: No category exists at index: ${action.index}`}];
           }
           break;
         case 'delete/canceled':
@@ -53,17 +67,21 @@ export function categoryReducer(state: CategoryState, action: CategoryAction): v
         case 'delete/confirmed':
           if (state.activeDelete === undefined) break;
           state.status = 'awaitingUpdate';
-          state.categories.splice(state.activeDelete, 1);
+          state.categories = undefined;
           state.activeDelete = undefined;
           break;
-        case 'updateSucceeded':
-          state.status = 'loading';
+        case 'newCatEdited':
+          state.newCat = action.name;
           break;
-        case 'updateFailed':
-          state.errors.push(action.error);
-          // reset data
-          state.categories = undefined;
-          state.status = 'loading';
+        case 'newCatAdded':
+          if (!state.newCat || !state.newCat.trim()) {
+            state.errors = [{id: 'new-cat-input', msg: 'Category name must not be empty'}];
+          } else {
+            state.newCat = '';
+            state.categories = undefined;
+            state.status = 'awaitingUpdate';
+          }
+          break;
       }
   }
 }
