@@ -38,7 +38,7 @@ async function DELETE(id: number, res: NextApiResponse) {
     where: { id }
   })
   // throws exception if record did not exist, so if we make it here we can safely return a successful result
-  return res.status(204).json({message: 'delete success'});
+  return res.status(200).json({message: 'delete success'});
 }
 
 async function PATCH(id: number, req: NextApiRequest, res: NextApiResponse) {

@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function DELETE(id: number, res: NextApiResponse) {
   await prisma.field.delete({ where: { id }});
-  return res.status(204).json({message: 'delete success'});
+  return res.status(200).json({message: 'delete success'});
 }
 
 async function PATCH(id: number, req: NextApiRequest, res: NextApiResponse) {
