@@ -1,10 +1,7 @@
 import Layout from '@/components/layout/Layout'
 import CategoryForm from '@/components/pages/category-editor/CategoryForm';
-import { Category, categorySchema } from '@/lib/api_schema';
 import { prisma } from '@/lib/prisma';
-import { requestNoResponse, requestWithResponse } from '@/lib/utils';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { z } from 'zod';
 
 export const getServerSideProps = (async (context) => {
   // get category id
