@@ -3,13 +3,15 @@ import { prisma } from '@/lib/prisma'
 import * as z from 'zod'
 import { Schedule, itemIncludeClause, schedulePatchSchema } from '@/lib/api_schema';
 import { Prisma } from '@prisma/client';
+import { dayKeys } from '@/lib/types';
 
 // the expected context provided by the dynamic route
-const querySchema = z.object({ _id: z.string() });
+const querySchema = z.object({ schedule_id: z.string() });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const id = parseInt(querySchema.parse(req.query)._id);
+    const id = parseInt(querySchema.parse(req.query).schedule_id);
+    console.log(id);
     if (isNaN(id)) return res.status(422).json({message: 'Invalid ID'});
 
     switch (req.method) {
@@ -38,6 +40,9 @@ async function PATCH(id: number, req: NextApiRequest, res: NextApiResponse) {
       break;
     case 'day':
       data = { [body.day]: body.value };
+      break;
+    case 'all-days':
+      data = dayKeys<boolean>(body.value);
       break;
     case 'category/add':
       data = { categories: { connect: { id: body.id}} };

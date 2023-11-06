@@ -41,7 +41,6 @@ async function POST(req: NextApiRequest, res: NextApiResponse) {
   const schedule: Schedule = await prisma.schedule.create({
     data: {
       ...body,
-      categories: { connect: body.categories },
     },
     select: itemIncludeClause.schedules.select,
   });

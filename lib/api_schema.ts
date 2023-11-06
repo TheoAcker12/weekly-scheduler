@@ -105,7 +105,6 @@ export type ScheduleListItem = z.infer<typeof scheduleListItemSchema>
 export const newScheduleSchema = z.object({
   item_id: z.number(),
   amount: z.string().trim(),
-  categories: z.array(z.object({ id: z.number() })),
 }).merge(scheduleDays);
 // response:
 const scheduleSchema = z.object({
@@ -126,7 +125,9 @@ export const schedulePatchSchema = z.discriminatedUnion('type', [
   z.object({type: z.literal('category/add'), id: z.number()}),
   z.object({type: z.literal('category/remove'), id: z.number()}),
   z.object({type: z.literal('day'), day: zDays, value: z.boolean()}),
+  z.object({type: z.literal('all-days'), value: z.boolean()}),
 ]);
+export type SchedulePatchAction = z.infer<typeof schedulePatchSchema>
 // response: scheduleSchema (above)
 
 // DELETE /schedule/id
@@ -172,7 +173,7 @@ export const newItemSchema = z.object({
   order: z.number(),
 })
 // response:
-const itemSchema = z.object({
+export const itemSchema = z.object({
   id: z.number(),
   name: z.string(),
   notes: z.string().nullish(),
@@ -201,6 +202,7 @@ export const itemPatchSchema = z.discriminatedUnion('type', [
   z.object({type: z.literal('category/add'), id: z.number()}),
   z.object({type: z.literal('category/remove'), id: z.number()}),
 ])
+export type ItemPatchAction = z.infer<typeof itemPatchSchema>
 // response: itemSchema (above)
 
 // DELETE /item/id

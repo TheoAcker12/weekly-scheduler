@@ -1,0 +1,78 @@
+.itemDetails {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  width: fit-content;
+  column-gap: 10px;
+  row-gap: 15px;
+  & > div {
+    display: contents;
+  }
+  label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  input {
+    margin: 0;
+  }
+}
+
+// categories
+.categoryEditor {
+  ul {
+    margin-bottom: 10px;
+  }
+  li > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    & > span {
+      padding-left: 5px;
+    }
+  }
+  button {
+    margin: 5px 10px;
+    padding: 3px 7px;
+  }
+}
+.newCategorySection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 10px;
+}
+
+// schedule grid
+.scheduleGrid {
+  position: relative;
+  left: 0;
+  grid-template-columns: auto min-content auto auto min-content;
+  border-bottom: none;
+  margin-bottom: 10px;
+
+  .gridItem {
+    padding: 5px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+  .deleteConfirmation {
+    grid-column: 1 / 6;
+  }
+}
+.deleteConfirmation {
+  & > div {
+    display: flex;
+    flex-wrap: none;
+  }
+}
+
+// schedule editor
+.schedulesEditor {
+  fieldset {
+    width: fit-content;
+  }
+}
+.amountInput {
+  max-width: 100%;
+  box-sizing: border-box;
+}

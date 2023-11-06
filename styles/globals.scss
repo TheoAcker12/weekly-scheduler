@@ -97,6 +97,11 @@ nav {
 legend {
   font-size: 1.2em;
 }
+.checkbox-group {
+  label, input {
+    cursor: pointer;
+  }
+}
 
 .grid {
   display: grid;
