@@ -102,11 +102,11 @@ legend {
   display: grid;
   border: 1px solid;
   border-right: none;
-  position: absolute;
   right: 20px;
   left: 20px;
   overflow-x: auto;
   margin-top: 15px;
+  margin-bottom: 30px;
   
   .ignore-grid {
     display: contents;
