@@ -2,50 +2,6 @@ import { Prisma } from '@prisma/client';
 import * as z from 'zod'
 import { dayKeys, zDays } from './types';
 
-// Category
-// returns categorySchema defined below
-export const categorySelectClause = {
-  id: true, name: true,
-  fields: {
-    select: { name: true, id: true, order: true },
-    orderBy: { order: Prisma.SortOrder.asc }
-  }
-};
-
-// GET /category
-// response: array of these:
-export const categorySchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  fields: z.array(z.object({
-    id: z.number(),
-    name: z.string(),
-    order: z.number(),
-  }))
-});
-export type Category = z.infer<typeof categorySchema>
-
-// POST /category
-// request:
-export const newCategorySchema = z.object({
-  name: z.string().trim(),
-  fields: z.array(z.object({
-    name: z.string().trim(),
-  }))
-});
-// response: categorySchema (above)
-
-// GET /category/id
-// response: categorySchema (above)
-
-// PATCH /category/id
-// request: (can update name)
-export const categoryPatchSchema = z.object({ name: z.string().trim() });
-// response: categorySchema (above)
-
-// DELETE /category/id
-// request/response: n/a
-
 
 // Field
 
@@ -75,6 +31,48 @@ export const fieldPatchSchema = z.object({ name: z.string().trim() });
 // response: fieldSchema (above)
 
 // DELETE /field/id
+// request/response: n/a
+
+
+
+// Category
+// returns categorySchema defined below
+export const categorySelectClause = {
+  id: true, name: true,
+  fields: {
+    select: { name: true, id: true, order: true },
+    orderBy: { order: Prisma.SortOrder.asc }
+  }
+};
+
+// GET /category
+// response: array of these:
+export const categorySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  fields: z.array(fieldSchema)
+});
+export type Category = z.infer<typeof categorySchema>
+
+// POST /category
+// request:
+export const newCategorySchema = z.object({
+  name: z.string().trim(),
+  fields: z.array(z.object({
+    name: z.string().trim(),
+  }))
+});
+// response: categorySchema (above)
+
+// GET /category/id
+// response: categorySchema (above)
+
+// PATCH /category/id
+// request: (can update name)
+export const categoryPatchSchema = z.object({ name: z.string().trim() });
+// response: categorySchema (above)
+
+// DELETE /category/id
 // request/response: n/a
 
 

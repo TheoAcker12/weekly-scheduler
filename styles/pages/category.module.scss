@@ -1,0 +1,30 @@
+.fieldsList {
+  grid-template-columns: 1fr repeat(3, auto);
+  margin: 0 10px;
+  // margin-bottom: 20px;
+  position: relative;
+  left: 0;
+  border: none;
+  width: fit-content;
+  .deleteConfirmation {
+    grid-column: 1 / 5;
+    // justify-content: center;
+  }
+}
+
+.fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  width: fit-content;
+  button {
+    margin-bottom: 5px;
+  }
+}
+
+.deleteConfirmation {
+  & > div {
+    display: flex;
+    flex-wrap: none;
+  }
+}
