@@ -41,6 +41,7 @@ async function DELETE(id: number, res: NextApiResponse) {
 async function PATCH(id: number, req: NextApiRequest, res: NextApiResponse) {
   const body = itemPatchSchema.parse(req.body);
   let data: Prisma.ItemUpdateInput;
+  let categoriesClause: {connect: {id: number}}|{disconnect: {id: number}}|undefined;
   switch (body.type) {
     case 'name':
       data = { name: body.name };
@@ -49,10 +50,12 @@ async function PATCH(id: number, req: NextApiRequest, res: NextApiResponse) {
       data = { notes: body.notes };
       break;
     case 'category/add':
-      data = { categories: { connect: { id: body.id}} };
+      categoriesClause = { connect: { id: body.id}};
+      data = { categories: categoriesClause };
       break;
     case 'category/remove':
-      data = { categories: { disconnect: { id: body.id}} };
+      categoriesClause = { disconnect: { id: body.id}};
+      data = { categories: categoriesClause };
       break;
   }
   const item: Item = await prisma.item.update({
@@ -60,5 +63,18 @@ async function PATCH(id: number, req: NextApiRequest, res: NextApiResponse) {
     data,
     include: itemIncludeClause,
   })
+  // for adding/removing categories: update all of the item's schedules, too
+  if (categoriesClause) {
+    const ids = (await prisma.schedule.findMany({
+      where: { item_id: id },
+      select: { id: true }
+    })).map((value) => value.id);
+    for (let schedule_id of ids) {
+      await prisma.schedule.update({
+        where: { id: schedule_id },
+        data: { categories: categoriesClause }
+      });
+    }
+  }
   return res.status(200).json(item);
 }
