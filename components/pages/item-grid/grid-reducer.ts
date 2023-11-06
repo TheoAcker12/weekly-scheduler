@@ -18,6 +18,7 @@ export type GridAction =
 | {type: 'delete/confirmed'}
 | {type: 'delete/canceled'}
 | {type: 'itemsMoved', index1: number, index2: number}
+| {type: 'updateRequested'}
 // completed updates - called when the action initiated by the user completes
 | {type: 'updateFailed', error: GenericError}
 | {type: 'updateSucceeded'}
@@ -70,6 +71,9 @@ export function gridReducer(state: GridState, action: GridAction) {
           state.status = 'awaitingUpdate';
           break;
         }
+        case 'updateRequested':
+          state.status = 'awaitingUpdate';
+          break;
         case 'updateFailed':
           state.errors.push(action.error);
           // reload the data since current state likely no longer reflects database

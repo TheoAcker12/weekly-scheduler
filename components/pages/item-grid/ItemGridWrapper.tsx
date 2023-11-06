@@ -7,6 +7,7 @@ import Loading from "@/components/ui/Loading";
 import ItemGrid from "./ItemGrid";
 import ScheduleGrid from "./ScheduleGrid";
 import { requestNoResponse, requestWithResponse } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   gridType?: 'item' | 'schedule',
@@ -62,6 +63,21 @@ export default function ItemGridWrapper(props: Props) {
     else dispatch({type: 'updateFailed', error: res.error});
   }
 
+  const addItem = async () => {
+    if (!items) return;
+    // place item at end of list
+    const order = items.length > 0 ? items[items.length-1].order + 1 : 0;
+    // update
+    dispatch({type: 'updateRequested'});
+    const res = await requestNoResponse({
+      route: '/api/item',
+      args: {method: 'POST', body: JSON.stringify({name: 'New Item', order})},
+      failureMsg: 'Add item failed'
+    });
+    if (res.success) dispatch({type: 'updateSucceeded'});
+    else dispatch({type: 'updateFailed', error: res.error});
+  }
+
   if (!items) {
     if (state.status !== 'dataLoading') return <Alert errors={state.errors} />
     else {
@@ -74,6 +90,10 @@ export default function ItemGridWrapper(props: Props) {
   if (items.length === 0) return <div>No items found</div>
   return (<>
     <Alert errors={state.errors} />
+    <Button
+      disabled={state.status !== 'default'}
+      onClick={addItem}
+    >Add New Item</Button>
     {props.gridType === 'schedule' ?
       <ScheduleGrid
         state={{items, ...state}}

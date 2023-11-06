@@ -39,13 +39,6 @@ async function POST(req: NextApiRequest, res: NextApiResponse) {
   const item: Item = await prisma.item.create({
     data: {
       ...body,
-      categories: {
-        connect: body.categories,
-      },
-      schedules: {
-        // createMany might be more efficient, but you can't access relations within createMany, and the shcedules need to be connected to categories (potentially)
-        create: body.schedules.map((s) => ({...s, categories: { connect: s.categories }})),
-      },
     },
     include: itemIncludeClause
   })

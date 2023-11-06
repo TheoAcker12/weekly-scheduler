@@ -169,13 +169,7 @@ export type ListItemSchedule = z.infer<typeof listItemSchedule>
 // request:
 export const newItemSchema = z.object({
   name: z.string().trim(),
-  notes: z.string().trim().nullish(),
   order: z.number(),
-  categories: z.array(z.object({ id: z.number() })),
-  schedules: z.array(z.object({
-    amount: z.string().trim(),
-    categories: z.array(z.object({ id: z.number() })),
-  }).merge(scheduleDays))
 })
 // response:
 const itemSchema = z.object({
