@@ -31,7 +31,7 @@ export const getServerSideProps = (async (context) => {
 export default function Page({id, name}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <Layout
-      current={`/items/edit/${id}`}
+      current={`/categories/edit/${id}`}
       title={`Edit Category ${name}`}
     >
       <CategoryForm
